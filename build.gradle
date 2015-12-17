@@ -1,0 +1,25 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'email.com.gmail.ttsai0509.serialmonitor.SerialMonitor'
+sourceCompatibility = 1.8
+//version = '1.0'
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'email.com.gmail.ttsai0509.serialmonitor.SerialMonitor'
+    }
+    baseName = project.name
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile files('libs/rxtx-2.2/RXTXcomm.jar')
+    compile 'org.slf4j:slf4j-api:1.7.13'
+    compile 'org.slf4j:slf4j-simple:1.7.13'
+}

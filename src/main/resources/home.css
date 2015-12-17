@@ -1,0 +1,24 @@
+
+.text-area {
+    -fx-font-family: Consolas;
+}
+
+.tab-pane {
+}
+
+#button-pane {
+    -fx-hgap: 10px;
+}
+
+#leftMenu {
+    -fx-padding: 10px;
+    -fx-spacing: 10px;
+}
+
+.tab-changed {
+    -fx-background-color: #81C784;
+}
+
+.tab-exited {
+    -fx-background-color: #E57373;
+}

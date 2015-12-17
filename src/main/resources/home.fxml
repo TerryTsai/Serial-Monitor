@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<SplitPane xmlns="http://javafx.com/javafx/8"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="email.com.gmail.ttsai0509.serialmonitor.controller.HomeController"
+           fx:id="root"
+           stylesheets="home.css"
+           orientation="HORIZONTAL"
+           focusTraversable="false">
+
+    <AnchorPane minWidth="0">
+        <VBox fx:id="leftMenu" focusTraversable="true"
+              AnchorPane.topAnchor="0"
+              AnchorPane.rightAnchor="0"
+              AnchorPane.leftAnchor="0"
+              AnchorPane.bottomAnchor="0">
+
+            <StackPane>
+                <Label text="Serial Monitor Settings"/>
+            </StackPane>
+
+            <TextField fx:id="port" promptText="COM Port"/>
+            <TextField fx:id="msg" promptText="Message"/>
+
+            <GridPane id="button-pane">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="50"/>
+                    <ColumnConstraints percentWidth="50"/>
+                </columnConstraints>
+                <Button fx:id="send" text="Send Message" maxWidth="Infinity"
+                        GridPane.rowIndex="0"
+                        GridPane.columnIndex="0"/>
+                <Button fx:id="connect" text="Connect" maxWidth="Infinity"
+                        GridPane.rowIndex="0"
+                        GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <ComboBox fx:id="baud" promptText="Baud" maxWidth="Infinity"/>
+            <ComboBox fx:id="data" promptText="Data Bits" maxWidth="Infinity"/>
+            <ComboBox fx:id="stop" promptText="Stop Bits" maxWidth="Infinity"/>
+            <ComboBox fx:id="flow" promptText="Flow Control" maxWidth="Infinity"/>
+            <ComboBox fx:id="parity" promptText="Parity" maxWidth="Infinity"/>
+
+        </VBox>
+    </AnchorPane>
+
+    <AnchorPane>
+        <TabPane fx:id="tabPane"
+                 AnchorPane.topAnchor="0"
+                 AnchorPane.rightAnchor="0"
+                 AnchorPane.leftAnchor="0"
+                 AnchorPane.bottomAnchor="0"/>
+    </AnchorPane>
+</SplitPane>
