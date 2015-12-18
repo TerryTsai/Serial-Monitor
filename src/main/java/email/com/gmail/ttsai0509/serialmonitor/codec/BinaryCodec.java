@@ -20,7 +20,7 @@ public class BinaryCodec implements Codec {
 
     @Override
     public String toString() {
-        return "BINARY CODEC";
+        return "CODEC_BINARY";
     }
 
 }

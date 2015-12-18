@@ -21,6 +21,6 @@ public class HexCodec implements Codec {
 
     @Override
     public String toString() {
-        return "HEX CODEC";
+        return "CODEC_HEX";
     }
 }

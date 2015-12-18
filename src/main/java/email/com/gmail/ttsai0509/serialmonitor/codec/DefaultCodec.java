@@ -14,6 +14,6 @@ public class DefaultCodec implements Codec {
 
     @Override
     public String toString() {
-        return "DEFAULT CODEC";
+        return "CODEC_DEFAULT";
     }
 }
