@@ -5,43 +5,44 @@
 <SplitPane xmlns="http://javafx.com/javafx/8"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="email.com.gmail.ttsai0509.serialmonitor.controller.HomeController"
-           fx:id="root"
            stylesheets="home.css"
            orientation="HORIZONTAL"
            focusTraversable="false">
 
     <AnchorPane minWidth="0">
-        <VBox fx:id="leftMenu" focusTraversable="true"
+
+        <VBox id="leftMenu" focusTraversable="true"
               AnchorPane.topAnchor="0"
               AnchorPane.rightAnchor="0"
               AnchorPane.leftAnchor="0"
               AnchorPane.bottomAnchor="0">
 
             <StackPane>
-                <Label text="Serial Monitor Settings"/>
+                <Label text="Serial Connection Settings"/>
             </StackPane>
 
-            <TextField fx:id="port" promptText="COM Port"/>
-            <TextField fx:id="msg" promptText="Message"/>
+            <ComboBox fx:id="inBaud" promptText="Baud"/>
+            <ComboBox fx:id="inData" promptText="Data Bits"/>
+            <ComboBox fx:id="inStop" promptText="Stop Bits"/>
+            <ComboBox fx:id="inFlow" promptText="Flow Control"/>
+            <ComboBox fx:id="inParity" promptText="Parity"/>
+            <ComboBox fx:id="inFormat" promptText="Encoding"/>
+            <TextField fx:id="inPort" promptText="COM Port"/>
+            <Button fx:id="inConnect" text="Connect"/>
 
-            <GridPane id="button-pane">
-                <columnConstraints>
-                    <ColumnConstraints percentWidth="50"/>
-                    <ColumnConstraints percentWidth="50"/>
-                </columnConstraints>
-                <Button fx:id="send" text="Send Message" maxWidth="Infinity"
-                        GridPane.rowIndex="0"
-                        GridPane.columnIndex="0"/>
-                <Button fx:id="connect" text="Connect" maxWidth="Infinity"
-                        GridPane.rowIndex="0"
-                        GridPane.columnIndex="1"/>
-            </GridPane>
+            <StackPane>
+                <Label text="Serial Messaging Settings"/>
+            </StackPane>
 
-            <ComboBox fx:id="baud" promptText="Baud" maxWidth="Infinity"/>
-            <ComboBox fx:id="data" promptText="Data Bits" maxWidth="Infinity"/>
-            <ComboBox fx:id="stop" promptText="Stop Bits" maxWidth="Infinity"/>
-            <ComboBox fx:id="flow" promptText="Flow Control" maxWidth="Infinity"/>
-            <ComboBox fx:id="parity" promptText="Parity" maxWidth="Infinity"/>
+            <ComboBox fx:id="outBaud" promptText="Baud"/>
+            <ComboBox fx:id="outData" promptText="Data Bits"/>
+            <ComboBox fx:id="outStop" promptText="Stop Bits"/>
+            <ComboBox fx:id="outFlow" promptText="Flow Control"/>
+            <ComboBox fx:id="outParity" promptText="Parity"/>
+            <ComboBox fx:id="outFormat" promptText="Decoding"/>
+            <TextField fx:id="outPort" promptText="COM Port"/>
+            <TextField fx:id="outMessage" promptText="Message"/>
+            <Button fx:id="outSend" text="Send"/>
 
         </VBox>
     </AnchorPane>

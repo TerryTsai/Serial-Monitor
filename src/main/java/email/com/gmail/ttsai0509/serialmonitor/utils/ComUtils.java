@@ -1,6 +1,5 @@
 package email.com.gmail.ttsai0509.serialmonitor.utils;
 
-
 import email.com.gmail.ttsai0509.serialmonitor.config.SerialConfig;
 import gnu.io.*;
 import org.slf4j.Logger;

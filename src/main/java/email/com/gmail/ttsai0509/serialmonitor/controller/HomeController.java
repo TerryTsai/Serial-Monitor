@@ -1,5 +1,9 @@
 package email.com.gmail.ttsai0509.serialmonitor.controller;
 
+import email.com.gmail.ttsai0509.serialmonitor.codec.BinaryCodec;
+import email.com.gmail.ttsai0509.serialmonitor.codec.Codec;
+import email.com.gmail.ttsai0509.serialmonitor.codec.DefaultCodec;
+import email.com.gmail.ttsai0509.serialmonitor.codec.HexCodec;
 import email.com.gmail.ttsai0509.serialmonitor.config.*;
 import email.com.gmail.ttsai0509.serialmonitor.utils.ComListener;
 import email.com.gmail.ttsai0509.serialmonitor.utils.ComUtils;
@@ -12,34 +16,45 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @SuppressWarnings("EmptyCatchBlock")
 public class HomeController {
 
     private static final Logger log = LoggerFactory.getLogger(HomeController.class);
 
-    @FXML public SplitPane root;
+    private static final Codec defaultCodec = new DefaultCodec();
+    private static final Codec binaryCodec = new BinaryCodec();
+    private static final Codec hexCodec = new HexCodec();
+    private static final List<Codec> codecs = Collections.unmodifiableList(
+            Arrays.asList(defaultCodec, binaryCodec, hexCodec)
+    );
 
-    @FXML public VBox leftMenu;
-    @FXML public TextField port;
-    @FXML public TextField msg;
-    @FXML public Button send;
-    @FXML public Button connect;
-    @FXML public ComboBox<Baud> baud;
-    @FXML public ComboBox<DataBits> data;
-    @FXML public ComboBox<StopBits> stop;
-    @FXML public ComboBox<FlowControl> flow;
-    @FXML public ComboBox<Parity> parity;
+    // Serial Incoming Connection
+    @FXML public ComboBox<Baud> inBaud;
+    @FXML public ComboBox<DataBits> inData;
+    @FXML public ComboBox<StopBits> inStop;
+    @FXML public ComboBox<FlowControl> inFlow;
+    @FXML public ComboBox<Parity> inParity;
+    @FXML public TextField inPort;
+    @FXML public ComboBox<Codec> inFormat;
+    @FXML public Button inConnect;
+
+    // Serial Outgoing Message
+    @FXML public ComboBox<Baud> outBaud;
+    @FXML public ComboBox<DataBits> outData;
+    @FXML public ComboBox<StopBits> outStop;
+    @FXML public ComboBox<FlowControl> outFlow;
+    @FXML public ComboBox<Parity> outParity;
+    @FXML public TextField outPort;
+    @FXML public ComboBox<Codec> outFormat;
+    @FXML public TextField outMessage;
+    @FXML public Button outSend;
 
     @FXML public TabPane tabPane;
 
@@ -47,35 +62,53 @@ public class HomeController {
 
     @FXML
     public void initialize() {
-        FXControlUtils.setSelectAllOnFocus(port);
-        FXControlUtils.setSelectAllOnFocus(msg);
+        FXControlUtils.setSelectAllOnFocus(outPort);
+        FXControlUtils.setSelectAllOnFocus(outMessage);
 
-        baud.setItems(FXCollections.observableList(Arrays.asList(Baud.values())));
-        data.setItems(FXCollections.observableList(Arrays.asList(DataBits.values())));
-        stop.setItems(FXCollections.observableList(Arrays.asList(StopBits.values())));
-        flow.setItems(FXCollections.observableList(Arrays.asList(FlowControl.values())));
-        parity.setItems(FXCollections.observableList(Arrays.asList(Parity.values())));
-
-        connect.setOnAction(event -> {
-            if (validArguments())
-                readInput(buildConfig());
-            else
-                new Alert(Alert.AlertType.ERROR, "All parameters must be set.").show();
-        });
-
-        send.setOnAction(event -> {
-            if (validArguments())
-                writeOutput(buildConfig(), msg.getText());
-            else
-                new Alert(Alert.AlertType.ERROR, "All parameters must be set.").show();
-        });
+        inFormat.setItems(FXCollections.observableList(codecs));
+        outFormat.setItems(FXCollections.observableList(codecs));
+        outBaud.setItems(FXCollections.observableList(Arrays.asList(Baud.values())));
+        outData.setItems(FXCollections.observableList(Arrays.asList(DataBits.values())));
+        outStop.setItems(FXCollections.observableList(Arrays.asList(StopBits.values())));
+        outFlow.setItems(FXCollections.observableList(Arrays.asList(FlowControl.values())));
+        outParity.setItems(FXCollections.observableList(Arrays.asList(Parity.values())));
 
         // Default Settings
-        baud.getSelectionModel().select(Baud.BAUD_9600);
-        data.getSelectionModel().select(DataBits.DATABITS_8);
-        stop.getSelectionModel().select(StopBits.STOPBITS_1);
-        flow.getSelectionModel().select(FlowControl.FLOWCONTROL_NONE);
-        parity.getSelectionModel().select(Parity.PARITY_NONE);
+        inFormat.getSelectionModel().select(defaultCodec);
+        inBaud.getSelectionModel().select(Baud.BAUD_9600);
+        inData.getSelectionModel().select(DataBits.DATABITS_8);
+        inStop.getSelectionModel().select(StopBits.STOPBITS_1);
+        inFlow.getSelectionModel().select(FlowControl.FLOWCONTROL_NONE);
+        inParity.getSelectionModel().select(Parity.PARITY_NONE);
+
+        outFormat.getSelectionModel().select(defaultCodec);
+        outBaud.getSelectionModel().select(Baud.BAUD_9600);
+        outData.getSelectionModel().select(DataBits.DATABITS_8);
+        outStop.getSelectionModel().select(StopBits.STOPBITS_1);
+        outFlow.getSelectionModel().select(FlowControl.FLOWCONTROL_NONE);
+        outParity.getSelectionModel().select(Parity.PARITY_NONE);
+
+
+        inConnect.setOnAction(event -> {
+            if (validateControls(inPort, inBaud, inData, inStop, inFlow, inParity, inFormat))
+                readInput(
+                        buildConfig(inPort, inBaud, inData, inStop, inFlow, inParity),
+                        inFormat.getSelectionModel().getSelectedItem()
+                );
+            else
+                new Alert(Alert.AlertType.ERROR, "All parameters must be set.").show();
+        });
+
+        outSend.setOnAction(event -> {
+            if (validateControls(outPort, outBaud, outData, outStop, outFlow, outParity, outFormat))
+                writeOutput(
+                        buildConfig(outPort, outBaud, outData, outStop, outFlow, outParity),
+                        outMessage.getText(),
+                        outFormat.getSelectionModel().getSelectedItem()
+                );
+            else
+                new Alert(Alert.AlertType.ERROR, "All parameters must be set.").show();
+        });
 
     }
 
@@ -91,7 +124,14 @@ public class HomeController {
      *                                                                *
      ******************************************************************/
 
-    private SerialConfig buildConfig() {
+    private SerialConfig buildConfig(
+            TextField port,
+            ComboBox<Baud> baud,
+            ComboBox<DataBits> data,
+            ComboBox<StopBits> stop,
+            ComboBox<FlowControl> flow,
+            ComboBox<Parity> parity
+    ) {
         String cPort = port.getText();
         Baud cBaud = baud.getSelectionModel().getSelectedItem();
         DataBits cData = data.getSelectionModel().getSelectedItem();
@@ -101,27 +141,33 @@ public class HomeController {
         return new SerialConfig(cPort, cBaud, cData, cParity, cStop, cFlow);
     }
 
-    private boolean validArguments() {
-        return port.getText() != null
-                && !port.getText().isEmpty()
-                && baud.getSelectionModel().getSelectedItem() != null
+    private boolean validateControls(
+            TextField port,
+            ComboBox<Baud> baud,
+            ComboBox<DataBits> data,
+            ComboBox<StopBits> stop,
+            ComboBox<FlowControl> flow,
+            ComboBox<Parity> parity,
+            ComboBox<Codec> format
+    ) {
+        return baud.getSelectionModel().getSelectedItem() != null
                 && data.getSelectionModel().getSelectedItem() != null
                 && stop.getSelectionModel().getSelectedItem() != null
                 && flow.getSelectionModel().getSelectedItem() != null
-                && parity.getSelectionModel().getSelectedItem() != null;
+                && parity.getSelectionModel().getSelectedItem() != null
+                && format.getSelectionModel().getSelectedItem() != null
+                && port.getText() != null && !port.getText().isEmpty();
     }
 
-    private void writeOutput(SerialConfig config, String message) {
+    private void writeOutput(SerialConfig config, String str, Codec codec) {
         SerialPort com = null;
         OutputStream os = null;
-        OutputStreamWriter osw = null;
 
         try {
             com = ComUtils.connectSerialPort(config, 2000);
             os = com.getOutputStream();
-            osw = new OutputStreamWriter(os);
-            osw.write(message);
-            osw.flush();
+            os.write(codec.decode(str));
+            os.flush();
 
         } catch (NoSuchPortException | UnsupportedCommOperationException | IOException e) {
 
@@ -132,19 +178,18 @@ public class HomeController {
             new Alert(Alert.AlertType.ERROR, "Port already in use.");
 
         } finally {
-            if (osw != null) try { osw.close(); } catch (IOException e) {}
             if (os != null) try { os.close(); } catch (IOException e) {}
             if (com != null) try { com.close(); } catch (Exception e) {}
 
         }
     }
 
-    private void readInput(SerialConfig config) {
+    private void readInput(SerialConfig config, Codec codec) {
         ComListener com = new ComListener();
         TextArea text = new TextArea();
         Tab tab = new Tab();
 
-        com.setDataCallback(data1 -> Platform.runLater(() -> text.setText(text.getText() + data1)));
+        com.setDataCallback(dat -> Platform.runLater(() -> text.setText(text.getText() + codec.encode(dat))));
         com.setExitCallback(() -> Platform.runLater(() -> tab.getStyleClass().add("tab-exited")));
 
         text.setEditable(false);

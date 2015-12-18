@@ -3,11 +3,8 @@
     -fx-font-family: Consolas;
 }
 
-.tab-pane {
-}
-
-#button-pane {
-    -fx-hgap: 10px;
+.button, .combo-box {
+    -fx-max-width: INFINITY;
 }
 
 #leftMenu {

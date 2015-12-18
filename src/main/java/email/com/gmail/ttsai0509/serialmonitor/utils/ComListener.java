@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressWarnings({"EmptyCatchBlock", "ResultOfMethodCallIgnored"})
@@ -69,8 +70,9 @@ public class ComListener implements Runnable {
                     int available = in.available();
                     if (available > 0) {
                         in.read(buffer, 0, available);
-                        if (dataCallback != null)
-                            dataCallback.dataReceived(new String(buffer, 0, available));
+                        if (dataCallback != null) {
+                            dataCallback.dataReceived(Arrays.copyOf(buffer, available));
+                        }
                     } else {
                         Thread.sleep(sleep);
                     }
@@ -105,7 +107,7 @@ public class ComListener implements Runnable {
      ******************************************************************/
 
     public static interface DataCallback {
-        void dataReceived(String data);
+        void dataReceived(byte[] data);
     }
 
     public static interface ExitCallback {
