@@ -41,8 +41,8 @@ public class HomeController {
     @FXML public ComboBox<StopBits> inStop;
     @FXML public ComboBox<FlowControl> inFlow;
     @FXML public ComboBox<Parity> inParity;
-    @FXML public TextField inPort;
     @FXML public ComboBox<Codec> inFormat;
+    @FXML public TextField inPort;
     @FXML public Button inConnect;
 
     // Serial Outgoing Message
@@ -51,8 +51,8 @@ public class HomeController {
     @FXML public ComboBox<StopBits> outStop;
     @FXML public ComboBox<FlowControl> outFlow;
     @FXML public ComboBox<Parity> outParity;
-    @FXML public TextField outPort;
     @FXML public ComboBox<Codec> outFormat;
+    @FXML public TextField outPort;
     @FXML public TextField outMessage;
     @FXML public Button outSend;
 
@@ -62,10 +62,15 @@ public class HomeController {
 
     @FXML
     public void initialize() {
-        FXControlUtils.setSelectAllOnFocus(outPort);
-        FXControlUtils.setSelectAllOnFocus(outMessage);
 
+        // ComboBox Items
         inFormat.setItems(FXCollections.observableList(codecs));
+        inBaud.setItems(FXCollections.observableList(Arrays.asList(Baud.values())));
+        inData.setItems(FXCollections.observableList(Arrays.asList(DataBits.values())));
+        inStop.setItems(FXCollections.observableList(Arrays.asList(StopBits.values())));
+        inFlow.setItems(FXCollections.observableList(Arrays.asList(FlowControl.values())));
+        inParity.setItems(FXCollections.observableList(Arrays.asList(Parity.values())));
+
         outFormat.setItems(FXCollections.observableList(codecs));
         outBaud.setItems(FXCollections.observableList(Arrays.asList(Baud.values())));
         outData.setItems(FXCollections.observableList(Arrays.asList(DataBits.values())));
@@ -88,9 +93,13 @@ public class HomeController {
         outFlow.getSelectionModel().select(FlowControl.FLOWCONTROL_NONE);
         outParity.getSelectionModel().select(Parity.PARITY_NONE);
 
+        // Event Handling
+        FXControlUtils.setSelectAllOnFocus(inPort);
+        FXControlUtils.setSelectAllOnFocus(outPort);
+        FXControlUtils.setSelectAllOnFocus(outMessage);
 
         inConnect.setOnAction(event -> {
-            if (validateControls(inPort, inBaud, inData, inStop, inFlow, inParity, inFormat))
+            if (hasValidSettings(inPort, inBaud, inData, inStop, inFlow, inParity, inFormat))
                 readInput(
                         buildConfig(inPort, inBaud, inData, inStop, inFlow, inParity),
                         inFormat.getSelectionModel().getSelectedItem()
@@ -100,7 +109,7 @@ public class HomeController {
         });
 
         outSend.setOnAction(event -> {
-            if (validateControls(outPort, outBaud, outData, outStop, outFlow, outParity, outFormat))
+            if (hasValidSettings(outPort, outBaud, outData, outStop, outFlow, outParity, outFormat))
                 writeOutput(
                         buildConfig(outPort, outBaud, outData, outStop, outFlow, outParity),
                         outMessage.getText(),
@@ -141,7 +150,7 @@ public class HomeController {
         return new SerialConfig(cPort, cBaud, cData, cParity, cStop, cFlow);
     }
 
-    private boolean validateControls(
+    private boolean hasValidSettings(
             TextField port,
             ComboBox<Baud> baud,
             ComboBox<DataBits> data,
@@ -189,7 +198,15 @@ public class HomeController {
         TextArea text = new TextArea();
         Tab tab = new Tab();
 
-        com.setDataCallback(dat -> Platform.runLater(() -> text.setText(text.getText() + codec.encode(dat))));
+        com.setDataCallback(dat -> Platform.runLater(() -> {
+            if (codec == binaryCodec)
+                text.setText(text.getText() + codec.encode(dat).replaceAll("(.{8})(?!$)", "$1 ") + " ");
+            else if (codec == hexCodec)
+                text.setText(text.getText() + codec.encode(dat).replaceAll("(.{2})(?!$)", "$1 ") + " ");
+            else
+                text.setText(text.getText() + codec.encode(dat));
+
+        }));
         com.setExitCallback(() -> Platform.runLater(() -> tab.getStyleClass().add("tab-exited")));
 
         text.setEditable(false);

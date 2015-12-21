@@ -23,7 +23,7 @@ public class SerialMonitor extends Application {
         SplitPane homeRoot = loader.getRoot();
 
         primaryStage.setTitle("Serial Monitor");
-        primaryStage.setMinWidth(800);
+        primaryStage.setMinWidth(400);
         primaryStage.setMinHeight(600);
         primaryStage.setScene(new Scene(homeRoot));
         primaryStage.setOnCloseRequest(event -> home.dispose());
