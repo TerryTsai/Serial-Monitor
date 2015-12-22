@@ -12,7 +12,11 @@ import gnu.io.UnsupportedCommOperationException;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,7 +162,7 @@ public class HomeController {
         return new SerialConfig(cPort, cBaud, cData, cParity, cStop, cFlow);
     }
 
-    private boolean hasValidSettings(Control ... controls) {
+    private boolean hasValidSettings(Control... controls) {
         for (Control control : controls) {
             if (control instanceof ComboBox) {
                 if (((ComboBox) control).getSelectionModel().getSelectedItem() == null)
@@ -197,10 +201,16 @@ public class HomeController {
     }
 
     private void readInput(SerialConfig config, Codec codec) {
-        ComListener com = new ComListener();
-        TextArea text = new TextArea();
         Tab tab = new Tab();
+        ComListener com = new ComListener();
+        BorderPane pane = new BorderPane();
+        TextArea text = new TextArea();
+        HBox bottom = new HBox();
+        Label info = new Label();
+        Button newLine = new Button();
+        Button clear = new Button();
 
+        com.setExitCallback(() -> Platform.runLater(() -> tab.getStyleClass().add("tab-exited")));
         com.setDataCallback(dat -> Platform.runLater(() -> {
             if (codec == binCodec)
                 text.setText(text.getText() + codec.encode(dat).replaceAll("(.{8})(?!$)", "$1 ") + " ");
@@ -208,9 +218,10 @@ public class HomeController {
                 text.setText(text.getText() + codec.encode(dat).replaceAll("(.{2})(?!$)", "$1 ") + " ");
             else
                 text.setText(text.getText() + codec.encode(dat));
-
         }));
-        com.setExitCallback(() -> Platform.runLater(() -> tab.getStyleClass().add("tab-exited")));
+
+        pane.setCenter(text);
+        pane.setBottom(bottom);
 
         text.setEditable(false);
         text.setWrapText(true);
@@ -219,8 +230,19 @@ public class HomeController {
                 tab.getStyleClass().add("tab-changed");
         });
 
+        bottom.getChildren().setAll(newLine, clear, new Label(" "),  info);
+        bottom.setAlignment(Pos.CENTER_LEFT);
+
+        info.setText(config.toString() + " | " + codec.toString());
+
+        newLine.setText("New Line");
+        newLine.setOnAction(event -> text.setText(text.getText() + "\n"));
+
+        clear.setText("Clear View");
+        clear.setOnAction(event -> text.setText(""));
+
         tab.setText(config.getPort());
-        tab.setContent(text);
+        tab.setContent(pane);
         tab.setClosable(true);
         tab.setOnClosed(e -> {
             com.stop();

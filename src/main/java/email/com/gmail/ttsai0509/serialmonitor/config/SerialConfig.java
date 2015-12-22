@@ -60,4 +60,14 @@ public class SerialConfig {
     public Parity getParity() {
         return parity;
     }
+
+    @Override
+    public String toString() {
+        return port + " | " +
+                baud + " | " +
+                dataBits + " | " +
+                stopBits + " | " +
+                flowControl + " | " +
+                parity;
+    }
 }

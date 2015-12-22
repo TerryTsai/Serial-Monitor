@@ -15,7 +15,7 @@ public class BinaryCodec implements Codec {
         if (str == null)
             return NO_DAT;
         else
-            return org.apache.commons.codec.binary.BinaryCodec.fromAscii(str.getBytes());
+            return org.apache.commons.codec.binary.BinaryCodec.fromAscii(str.replaceAll("\\s+","").getBytes());
     }
 
     @Override

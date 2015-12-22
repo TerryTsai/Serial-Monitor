@@ -2,6 +2,7 @@ package email.com.gmail.ttsai0509.serialmonitor.codec;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.binary.StringUtils;
 
 public class HexCodec implements Codec {
 
@@ -13,7 +14,7 @@ public class HexCodec implements Codec {
     @Override
     public byte[] decode(String str) {
         try {
-            return (str == null) ? NO_DAT : Hex.decodeHex(str.toCharArray());
+            return (str == null) ? NO_DAT : Hex.decodeHex(str.replaceAll("\\s+","").toCharArray());
         } catch (DecoderException e) {
             return NO_DAT;
         }
