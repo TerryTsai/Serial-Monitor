@@ -1,6 +1,6 @@
 package email.com.gmail.ttsai0509.serialmonitor.codec;
 
-public class DefaultCodec implements Codec {
+public class PlatformCodec implements Codec {
 
     @Override
     public String encode(byte[] dat) {
@@ -14,6 +14,6 @@ public class DefaultCodec implements Codec {
 
     @Override
     public String toString() {
-        return "CODEC_DEFAULT";
+        return "CODEC_PLATFORM";
     }
 }

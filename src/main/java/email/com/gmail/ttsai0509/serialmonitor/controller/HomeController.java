@@ -1,9 +1,6 @@
 package email.com.gmail.ttsai0509.serialmonitor.controller;
 
-import email.com.gmail.ttsai0509.serialmonitor.codec.BinaryCodec;
-import email.com.gmail.ttsai0509.serialmonitor.codec.Codec;
-import email.com.gmail.ttsai0509.serialmonitor.codec.DefaultCodec;
-import email.com.gmail.ttsai0509.serialmonitor.codec.HexCodec;
+import email.com.gmail.ttsai0509.serialmonitor.codec.*;
 import email.com.gmail.ttsai0509.serialmonitor.config.*;
 import email.com.gmail.ttsai0509.serialmonitor.utils.ComListener;
 import email.com.gmail.ttsai0509.serialmonitor.utils.ComUtils;
@@ -28,11 +25,22 @@ public class HomeController {
 
     private static final Logger log = LoggerFactory.getLogger(HomeController.class);
 
-    private static final Codec defaultCodec = new DefaultCodec();
-    private static final Codec binaryCodec = new BinaryCodec();
+    private static final Codec platCodec = new PlatformCodec();
+    private static final Codec binCodec = new BinaryCodec();
     private static final Codec hexCodec = new HexCodec();
+    private static final Codec asciiCodec = new CharsetCodec("US-ASCII");
+    private static final Codec isoCodec = new CharsetCodec("ISO-8859-1");
+    private static final Codec utf8Codec = new CharsetCodec("UTF-8");
+    private static final Codec utf16Codec = new CharsetCodec("UTF-16");
+    private static final Codec utf16beCodec = new CharsetCodec("UTF-16BE");
+    private static final Codec utf16leCodec = new CharsetCodec("UTF-16LE");
+
     private static final List<Codec> codecs = Collections.unmodifiableList(
-            Arrays.asList(defaultCodec, binaryCodec, hexCodec)
+            Arrays.asList(
+                    platCodec, binCodec, hexCodec,
+                    asciiCodec, isoCodec, utf8Codec,
+                    utf16Codec, utf16beCodec, utf16leCodec
+            )
     );
 
     // Serial Incoming Connection
@@ -79,14 +87,14 @@ public class HomeController {
         outParity.setItems(FXCollections.observableList(Arrays.asList(Parity.values())));
 
         // Default Settings
-        inFormat.getSelectionModel().select(defaultCodec);
+        inFormat.getSelectionModel().select(platCodec);
         inBaud.getSelectionModel().select(Baud.BAUD_9600);
         inData.getSelectionModel().select(DataBits.DATABITS_8);
         inStop.getSelectionModel().select(StopBits.STOPBITS_1);
         inFlow.getSelectionModel().select(FlowControl.FLOWCONTROL_NONE);
         inParity.getSelectionModel().select(Parity.PARITY_NONE);
 
-        outFormat.getSelectionModel().select(defaultCodec);
+        outFormat.getSelectionModel().select(platCodec);
         outBaud.getSelectionModel().select(Baud.BAUD_9600);
         outData.getSelectionModel().select(DataBits.DATABITS_8);
         outStop.getSelectionModel().select(StopBits.STOPBITS_1);
@@ -150,22 +158,17 @@ public class HomeController {
         return new SerialConfig(cPort, cBaud, cData, cParity, cStop, cFlow);
     }
 
-    private boolean hasValidSettings(
-            TextField port,
-            ComboBox<Baud> baud,
-            ComboBox<DataBits> data,
-            ComboBox<StopBits> stop,
-            ComboBox<FlowControl> flow,
-            ComboBox<Parity> parity,
-            ComboBox<Codec> format
-    ) {
-        return baud.getSelectionModel().getSelectedItem() != null
-                && data.getSelectionModel().getSelectedItem() != null
-                && stop.getSelectionModel().getSelectedItem() != null
-                && flow.getSelectionModel().getSelectedItem() != null
-                && parity.getSelectionModel().getSelectedItem() != null
-                && format.getSelectionModel().getSelectedItem() != null
-                && port.getText() != null && !port.getText().isEmpty();
+    private boolean hasValidSettings(Control ... controls) {
+        for (Control control : controls) {
+            if (control instanceof ComboBox) {
+                if (((ComboBox) control).getSelectionModel().getSelectedItem() == null)
+                    return false;
+            } else if (control instanceof TextField) {
+                if (((TextField) control).getText() == null)
+                    return false;
+            }
+        }
+        return true;
     }
 
     private void writeOutput(SerialConfig config, String str, Codec codec) {
@@ -199,7 +202,7 @@ public class HomeController {
         Tab tab = new Tab();
 
         com.setDataCallback(dat -> Platform.runLater(() -> {
-            if (codec == binaryCodec)
+            if (codec == binCodec)
                 text.setText(text.getText() + codec.encode(dat).replaceAll("(.{8})(?!$)", "$1 ") + " ");
             else if (codec == hexCodec)
                 text.setText(text.getText() + codec.encode(dat).replaceAll("(.{2})(?!$)", "$1 ") + " ");

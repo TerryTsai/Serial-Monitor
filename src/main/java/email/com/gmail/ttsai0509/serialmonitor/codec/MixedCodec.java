@@ -2,7 +2,7 @@ package email.com.gmail.ttsai0509.serialmonitor.codec;
 
 public class MixedCodec implements Codec {
 
-    private final static DefaultCodec defCodec = new DefaultCodec();
+    private final static PlatformCodec platCodec = new PlatformCodec();
     private final static BinaryCodec binCodec = new BinaryCodec();
     private final static HexCodec hexCodec = new HexCodec();
 
