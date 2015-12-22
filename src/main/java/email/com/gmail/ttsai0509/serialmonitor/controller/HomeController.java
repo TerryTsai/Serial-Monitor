@@ -12,11 +12,10 @@ import gnu.io.UnsupportedCommOperationException;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,6 +200,9 @@ public class HomeController {
     }
 
     private void readInput(SerialConfig config, Codec codec) {
+
+        // TODO : FXMLify
+
         Tab tab = new Tab();
         ComListener com = new ComListener();
         BorderPane pane = new BorderPane();
@@ -209,6 +211,7 @@ public class HomeController {
         Label info = new Label();
         Button newLine = new Button();
         Button clear = new Button();
+        Label stat = new Label();
 
         com.setExitCallback(() -> Platform.runLater(() -> tab.getStyleClass().add("tab-exited")));
         com.setDataCallback(dat -> Platform.runLater(() -> {
@@ -218,6 +221,19 @@ public class HomeController {
                 text.setText(text.getText() + codec.encode(dat).replaceAll("(.{2})(?!$)", "$1 ") + " ");
             else
                 text.setText(text.getText() + codec.encode(dat));
+        }));
+        com.setStatCallback((cts, dsr, cd, ri, rts) -> Platform.runLater(() -> {
+            String stats = "";
+            if (cts) stats += "CTS | ";
+            if (dsr) stats += "DSR | ";
+            if (cd) stats += "CD | ";
+            if (ri) stats += "RI | ";
+            if (rts) stats += "RTS | ";
+
+            if (stats.endsWith(" | "))
+                stat.setText(stats.substring(0, stats.length() - 3));
+            else
+                stat.setText(stats);
         }));
 
         pane.setCenter(text);
@@ -230,7 +246,7 @@ public class HomeController {
                 tab.getStyleClass().add("tab-changed");
         });
 
-        bottom.getChildren().setAll(newLine, clear, new Label(" "),  info);
+        bottom.getChildren().setAll(newLine, clear, new Label(" "), info, new Label(" "), stat);
         bottom.setAlignment(Pos.CENTER_LEFT);
 
         info.setText(config.toString() + " | " + codec.toString());

@@ -17,6 +17,7 @@ public class ComListener implements Runnable {
 
     private DataCallback dataCallback;
     private ExitCallback exitCallback;
+    private StatCallback statCallback;
 
     private SerialConfig config;
     private int timeout;
@@ -35,6 +36,10 @@ public class ComListener implements Runnable {
 
     public void setExitCallback(ExitCallback exitCallback) {
         this.exitCallback = exitCallback;
+    }
+
+    public void setStatCallback(StatCallback statCallback) {
+        this.statCallback = statCallback;
     }
 
     public void startAsync(SerialConfig config, int timeout, int bufferSize, int sleep) {
@@ -80,6 +85,9 @@ public class ComListener implements Runnable {
                     e.printStackTrace();
                 }
 
+                if (statCallback != null)
+                    statCallback.stat(port.isCTS(), port.isDSR(), port.isCD(), port.isRI(), port.isRTS());
+
             }
 
         } catch (Exception e) {
@@ -114,5 +122,8 @@ public class ComListener implements Runnable {
         void onExit();
     }
 
+    public static interface StatCallback {
+        void stat(boolean cts, boolean dsr, boolean cd, boolean ri, boolean rts);
+    }
 
 }
