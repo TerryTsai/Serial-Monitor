@@ -10,5 +10,5 @@ Features
 ------------
 - Monitor incoming serial port data in real time.
 - Send raw data to a serial port.
-- Tabbed interface for monitoring muliple ports at once.
+- Tabbed interface for monitoring multiple ports at once.
 - Various codecs for incoming/outgoing data (binary, hex, ascii, utf-8, utf-16).
