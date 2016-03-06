@@ -12,3 +12,7 @@ Features
 - Send raw data to a serial port.
 - Tabbed interface for monitoring multiple ports at once.
 - Various codecs for incoming/outgoing data (binary, hex, ascii, utf-8, utf-16).
+
+Screenshot
+------------
+![Screenshot](https://github.com/TerryTsai/Serial-Monitor/blob/master/sample.png)
